@@ -6,3 +6,21 @@ body {
 a {
   color: #00B7FF;
 }
+
+table.cubes {
+  border-collapse: collapse;
+}
+
+.cubes th {
+  border-bottom: thin solid;
+  text-align: center;
+  min-width: 5em;
+}
+
+.cubes td {
+  text-align: right;
+}
+.cubes td:first-child {
+  text-align: center;
+  border-right: thin solid;
+}
