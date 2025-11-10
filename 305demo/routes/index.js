@@ -19,8 +19,18 @@ function showPage(req, res, next) {
   if (req.body.HR_page) {
     console.log('HR page');
     // res.render('HR_page', { title: 'HR page' });
-    res.render("index", { title: 'HR page',
-                          formdata: req.body})
+
+    let sql = 'SELECT FacSSN, FacFirstName, FacLastName from Faculty;'
+    req.app.locals.db.all(sql, [], (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      req.app.locals.db.facpeople = rows;
+      res.render("index", { title: 'HR page',
+                          formdata: req.body,
+                          facpeople: rows
+                        })
+    })
   }
   else {
     res.render('index', { title: '305demo',

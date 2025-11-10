@@ -26,6 +26,16 @@ block content
     br
     input(type="submit", value="Submit")
 
+    if facpeople
+      h3 Faculty details 
+      label Faculty to &nbsp;
+        span(style='text-decoration: line-through') snoop on
+        | &nbsp;inquire about
+      select(id='FacSSN', name='FacSSN')
+        option(value='') &mdash; Please select a faculty member &mdash;
+        each row in facpeople
+          option(value=row.FacSSN class='name') #{row.FacFirstName} #{row.FacLastName}
+
     if formdata.cube_n
       - var i = 1
       table(class="cubes")

@@ -24,3 +24,7 @@ table.cubes {
   text-align: center;
   border-right: thin solid;
 }
+
+.name {
+  text-transform: capitalize;
+}
