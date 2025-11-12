@@ -25,6 +25,6 @@ table.cubes {
   border-right: thin solid;
 }
 
-.name {
+.name, .term {
   text-transform: capitalize;
 }

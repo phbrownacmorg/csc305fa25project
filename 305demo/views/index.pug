@@ -23,6 +23,18 @@ block content
     //- - if formdata.cube_n
     //- -   cube_n = formdata.cube_n
     input#cube_n(type="number", name="cube_n", value="0")
+    br
+    if termslist
+      label List courses for:&nbsp;
+      select#term_year(name="term_year", class='term')
+        option(value="") &mdash;Please select a term and year&mdash;
+        each row in termslist
+          option(value=`${row.OffTerm}_${row.OffYear}`, class='term') #{row.OffTerm.toLowerCase()} #{row.OffYear}
+    
+    if termcourses
+      h3 Courses offered in #{formdata.term_year}
+
+
 
     if facpeople
       h3 Faculty details 
