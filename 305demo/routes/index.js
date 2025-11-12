@@ -22,8 +22,13 @@ function listTerms(req, res, next) {
         throw err;
       }
       req.app.locals.termslist = rows;
-      listFaculty(req, res, next);
+      listTermCourses(req, res, next);
   })
+}
+
+function listTermCourses(req, res, next) {
+  console.log(`term_year = "${req.body.term_year}`);
+  listFaculty(req, res, next);
 }
 
 function listFaculty(req, res, next) {
