@@ -6,59 +6,112 @@ block content
     p Welcome to the HR page, where we know what's good for you.
   else
     p Welcome to #{title}
-  h2 Next page
 
   form(action="/", method="get")
-    //- - var checked = '';
-    //- if formdata.HR_page
-    //-   - checked = ', checked="on"';
-    if formdata.HR_page
-      input#HR_page(type="checkbox", name="HR_page", checked)
-    else
-      input#HR_page(type="checkbox", name="HR_page")
-    label Go to the HR page
-    br
-    label Show table of cubes up to 
-    //- - var cube_n = 0
-    //- - if formdata.cube_n
-    //- -   cube_n = formdata.cube_n
-    input#cube_n(type="number", name="cube_n", value="0")
-    br
-    if termslist
-      label List courses for:&nbsp;
-      select#term_year(name="term_year", class='term')
-        option(value="") &mdash;Please select a term and year&mdash;
-        each row in termslist
-          option(value=`${row.OffTerm}_${row.OffYear}`, class='term') #{row.OffTerm.toLowerCase()} #{row.OffYear}
-    
-    if termcourses
-      h3 Courses offered in #{formdata.term_year}
+    fieldset
+      legend Next page
+      if formdata.HR_page
+        input#HR_page(type="checkbox", name="HR_page", checked)
+      else
+        input#HR_page(type="checkbox", name="HR_page")
+      label Go to the HR page
+    fieldset
+      legend Courses by term
+      if termslist
+        label List courses for:&nbsp;
+        select#term_year(name="term_year")
+          option(value="") &mdash;Please select a term and year&mdash;
+          each row in termslist
+            - let term = row.OffTerm[0] + row.OffTerm.substring(1).toLowerCase()
+            - let val = `${row.OffTerm}_${row.OffYear}`
+            if formdata.term_year && (formdata.term_year == val)
+              option(value=val, selected) #{term} #{row.OffYear}
+            else
+              option(value=val) #{term} #{row.OffYear}
+      
+      if termcourses && termcourses.length > 0
+        table(class="courses")
+          caption
+            - let parts = formdata.term_year.split('_')
+            - let term = parts[0]
+            - let year = parts[1]
+            h3 Courses offered in #{term[0]}#{term.substring(1).toLowerCase()} #{year}
+          thead
+            tr 
+              //- th #{JSON.stringify(termcourses)}
+              each key in Object.keys(termcourses[0])
+                if key == "FacSSN"
+                  th(scope="column", class="offerings") Instructor
+                else
+                  th(scope="column", class="offerings")= key
+          tbody 
+            each course in termcourses
+              tr 
+                each key in Object.keys(course)
+                  if facpeople && (key == "FacSSN")
+                    td(class="offerings")
+                      - let select_id = `Offer${course['OfferNo']}_FacSSN`
+                      select(id=select_id, name=select_id, class='name')
+                        option(value='') 
+                        each row in facpeople
+                          if course.FacSSN == row.FacSSN
+                            option(value=row.FacSSN,class='name',selected) #{row.FacFirstName.toLowerCase()} #{row.FacLastName.toLowerCase()}
+                          else 
+                            option(value=row.FacSSN,class='name') #{row.FacFirstName.toLowerCase()} #{row.FacLastName.toLowerCase()}
 
+                  else
+                    td(class="offerings") #{course[key]}
 
+    if formdata.HR_page && facpeople
+      fieldset 
+        legend Faculty details
+        label Faculty to&nbsp;
+          span(style='text-decoration: line-through') snoop on
+          | &nbsp;inquire about:&nbsp;
+        select(id='FacSSN', name='FacSSN')
+          option(value='') &mdash; Please select a faculty member &mdash;
+          each row in facpeople
+            - let firstname = row.FacFirstName[0] + row.FacFirstName.substring(1).toLowerCase()
+            - let lastname = row.FacLastName[0] + row.FacLastName.substring(1).toLowerCase()
+            if formdata.FacSSN && (formdata.FacSSN == row.FacSSN)
+              option(value=row.FacSSN, selected) #{firstname} #{lastname}
+            else 
+              option(value=row.FacSSN) #{firstname} #{lastname}
 
-    if facpeople
-      h3 Faculty details 
-      label Faculty to&nbsp;
-        span(style='text-decoration: line-through') snoop on
-        | &nbsp;inquire about:&nbsp;
-      select(id='FacSSN', name='FacSSN')
-        option(value='') &mdash; Please select a faculty member &mdash;
-        each row in facpeople
-          option(value=row.FacSSN class='name') #{row.FacFirstName.toLowerCase()} #{row.FacLastName.toLowerCase()}
-    br
+        if facdetails
+          table 
+            caption 
+              h3 Details for&nbsp;
+                span(class='name') #{facdetails.FacFirstName.toLowerCase()} #{facdetails.FacLastName.toLowerCase()}
+            thead 
+              tr 
+                each key in Object.keys(facdetails)
+                  th(scope="column",class="facdetails")= key
+            tbody 
+              tr 
+                each key in Object.keys(facdetails)
+                  td(class="facdetails") #{facdetails[key]}
+
+    fieldset
+      legend Cubes
+      label Show table of cubes up to
+      - let top_cube = formdata.cube_n ? formdata.cube_n : 0
+      input#cube_n(type="number", name="cube_n", value=top_cube)
+      br
+      if formdata.cube_n && formdata.cube_n > 0
+        - let i = 1
+        table(class="cubes")
+          caption 
+            h3 Table of cubes
+          tr
+            th n
+            th n**3
+          
+          while i <= formdata.cube_n
+            tr
+              td #{i}
+              td #{i**3}
+            - i = i+1
+
     input(type="submit", value="Submit")
 
-    if formdata.cube_n && formdata.cube_n > 0
-      - var i = 1
-      table(class="cubes")
-        caption 
-          h3 Table of cubes
-        tr
-          th n
-          th n**3
-        
-        while i <= formdata.cube_n
-          tr
-            td #{i}
-            td #{i**3}
-          - i = i+1
