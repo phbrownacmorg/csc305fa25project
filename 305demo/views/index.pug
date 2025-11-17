@@ -7,7 +7,7 @@ block content
   else
     p Welcome to #{title}
 
-  form(action="/", method="get")
+  form#mainform(action="/", method="get")
     fieldset
       legend Next page
       if formdata.HR_page
@@ -115,3 +115,42 @@ block content
 
     input(type="submit", value="Submit")
 
+  if formdata.HR_page && faculty && faculty.length > 0
+    - let departments = ['FIN','MS'];
+    - let ranks = ['ASST', 'ASSC', 'PROF'];
+    table
+      caption Faculty 
+      thead
+        tr
+          each key in Object.keys(faculty[0])
+            th(scope='column', class='facdetails') #{key}
+      tbody 
+        each row in faculty
+          tr
+            each key in Object.keys(row)
+              td(class="facdetails") #{row[key]}
+        tr
+          form#faculty_insert(action="/", method="get")
+            input(type="hidden",name="action",value='faculty_insert')
+            //- Include the old formdata, so the main form redisplays correctly
+            each key in Object.keys(formdata)
+              input(type="hidden",name=`${key}`, value=`${formdata[key]}`)
+            td(class="facdetails")
+              input(name="FacSSN",type="text",pattern="\d{9}",style="width: 5em",required)
+            td(class="facdetails")
+              input(name="FacFirstName",type="text",required,style="width: 8em")
+            td(class="facdetails")
+              input(name="FacLastName",type="text",required,style="width: 8em")
+            td(class="facdetails")
+              input(name="FacCity",type="text",required,style="width: 8em")
+            td(class="facdetails")
+              input(name="FacState",type="text",required,style="width: 1.5em", pattern='[A-Z]{2}')
+            td(class="facdetails")
+              select(name='FacDept',required)
+                each dept in departments
+                  option #{dept}
+            td(class="facdetails")
+              select(name='FacRank',required)
+                each rank in ranks
+                  option #{rank}
+            

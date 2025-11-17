@@ -26,7 +26,22 @@ function setTitle(req, res, next) {
   else {
     req.app.locals.title = '305demo';
   }
-  listTerms(req, res, next);
+  getFaculty(req, res, next);
+}
+
+/**
+ * Unconditionally set req.app.locals.faculty to be a list of the
+ * entire Faculty table.  Call listTerms next.
+ */
+function getFaculty(req, res, next) {
+  let sql = 'SELECT * from Faculty order by FacLastName, FacFirstName, FacSSN;'
+  req.app.locals.db.all(sql, [], (err, rows) => {
+    if (err) {
+      throw err;
+    }
+    req.app.locals.faculty = rows;
+    listTerms(req, res, next);
+  })
 }
 
 /*
@@ -118,7 +133,8 @@ function renderPage(req, res, next) {
                         formdata: req.body,
                         termslist: req.app.locals.termslist,
                         facpeople: req.app.locals.facpeople,
-                        facdetails: req.app.locals.facDetails                        
+                        facdetails: req.app.locals.facDetails,
+                        faculty: req.app.locals.faculty                        
   });
 }
 
