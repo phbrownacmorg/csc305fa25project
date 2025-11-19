@@ -58,3 +58,29 @@ form {
 fieldset {
   margin: 1ex 0;
 }
+
+/* ------------------- Indicate required items ------------------------------------------------ */
+span.flag::before {
+    color: firebrick;
+    content: '*';
+}
+
+:valid + span.flag::before, span.flag.valid::before, 
+:valid + label + span.flag::before {
+    color: green;
+    content: '✓';
+}
+
+/* for the key at the top */
+ul.validity {
+    list-style-type: none;
+    padding-inline-start: 0;
+}
+
+.invalid {
+    color: firebrick;
+}
+
+.valid {
+    color: green;
+}

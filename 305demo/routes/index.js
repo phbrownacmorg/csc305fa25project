@@ -61,7 +61,7 @@ function listTerms(req, res, next) {
 
 /*
  * If req.body.term_year is set, set req.locals.termcourses to a list of the
- * courses offered in that term and year.  Call listFaculty next.
+ * courses offered in that term and year.  Call renderPage.
  */
 function listTermCourses(req, res, next) {
   if (req.body.term_year) {
@@ -77,52 +77,52 @@ function listTermCourses(req, res, next) {
     req.app.locals.db.all(sql, [term, year], (err, rows) => {
       req.app.locals.termcourses = rows;
       console.log(`${rows.length} courses`);
-      listFaculty(req, res, next);
-    });
-  }
-  else {
-    req.app.locals.termcourses = undefined;
-    listFaculty(req, res, next);
-  }
-}
-
-
-/*
- * Unconditionally set req.app.locals.facpeople to the FacSSN, FacFirstName, and
- * FacLastName of everyone in the Faculty table.  Call inquireFaculty.
- */
-function listFaculty(req, res, next) {  
-  let sql = 'SELECT FacSSN, FacFirstName, FacLastName from Faculty;'
-  req.app.locals.db.all(sql, [], (err, rows) => {
-    if (err) {
-      throw err;
-    }
-    req.app.locals.facpeople = rows;
-    req.app.locals.title = 
-    inquireFaculty(req, res, next);
-  })
-}
-
-/*
- * Set req.app.locals.facDetails to all the details about a given faculty member.  Call renderPage.
- */
-function inquireFaculty(req, res, next) {
-  if (req.body.FacSSN) {
-    sql = 'select FacSSN, FacFirstName, FacLastName, FacCity, FacState, FacZipCode, FacDept, FacRank, FacSalary, FacSupervisor, FacHireDate';
-    sql += ' from Faculty where FacSSN=?;';
-    req.app.locals.db.get(sql, [req.body.FacSSN], (err, row) => {
-      if (err) {
-        throw err;
-      }
-      req.app.locals.facDetails = row;
       renderPage(req, res, next);
     });
   }
   else {
-    req.app.locals.facDetails = undefined;
+    req.app.locals.termcourses = undefined;
     renderPage(req, res, next);
   }
 }
+
+
+// /*
+//  * Unconditionally set req.app.locals.facpeople to the FacSSN, FacFirstName, and
+//  * FacLastName of everyone in the Faculty table.  Call inquireFaculty.
+//  */
+// function listFaculty(req, res, next) {  
+//   let sql = 'SELECT FacSSN, FacFirstName, FacLastName from Faculty;'
+//   req.app.locals.db.all(sql, [], (err, rows) => {
+//     if (err) {
+//       throw err;
+//     }
+//     req.app.locals.facpeople = rows;
+//     req.app.locals.title = 
+//     inquireFaculty(req, res, next);
+//   })
+// }
+
+// /*
+//  * Set req.app.locals.facDetails to all the details about a given faculty member.  Call renderPage.
+//  */
+// function inquireFaculty(req, res, next) {
+//   if (req.body.FacSSN) {
+//     sql = 'select FacSSN, FacFirstName, FacLastName, FacCity, FacState, FacZipCode, FacDept, FacRank, FacSalary, FacSupervisor, FacHireDate';
+//     sql += ' from Faculty where FacSSN=?;';
+//     req.app.locals.db.get(sql, [req.body.FacSSN], (err, row) => {
+//       if (err) {
+//         throw err;
+//       }
+//       req.app.locals.facDetails = row;
+//       renderPage(req, res, next);
+//     });
+//   }
+//   else {
+//     req.app.locals.facDetails = undefined;
+//     renderPage(req, res, next);
+//   }
+// }
 
 
 /*
@@ -132,8 +132,6 @@ function renderPage(req, res, next) {
   res.render('index', { title: req.app.locals.title,
                         formdata: req.body,
                         termslist: req.app.locals.termslist,
-                        facpeople: req.app.locals.facpeople,
-                        facdetails: req.app.locals.facDetails,
                         faculty: req.app.locals.faculty                        
   });
 }

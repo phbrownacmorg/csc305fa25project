@@ -62,35 +62,35 @@ block content
                   else
                     td(class="offerings") #{course[key]}
 
-    if formdata.HR_page && facpeople
-      fieldset 
-        legend Faculty details
-        label Faculty to&nbsp;
-          span(style='text-decoration: line-through') snoop on
-          | &nbsp;inquire about:&nbsp;
-        select(id='FacSSN', name='FacSSN')
-          option(value='') &mdash; Please select a faculty member &mdash;
-          each row in facpeople
-            - let firstname = row.FacFirstName[0] + row.FacFirstName.substring(1).toLowerCase()
-            - let lastname = row.FacLastName[0] + row.FacLastName.substring(1).toLowerCase()
-            if formdata.FacSSN && (formdata.FacSSN == row.FacSSN)
-              option(value=row.FacSSN, selected) #{firstname} #{lastname}
-            else 
-              option(value=row.FacSSN) #{firstname} #{lastname}
+    //- if formdata.HR_page && facpeople
+    //-   fieldset 
+    //-     legend Faculty details
+    //-     label Faculty to&nbsp;
+    //-       span(style='text-decoration: line-through') snoop on
+    //-       | &nbsp;inquire about:&nbsp;
+    //-     select(id='FacSSN', name='FacSSN')
+    //-       option(value='') &mdash; Please select a faculty member &mdash;
+    //-       each row in facpeople
+    //-         - let firstname = row.FacFirstName[0] + row.FacFirstName.substring(1).toLowerCase()
+    //-         - let lastname = row.FacLastName[0] + row.FacLastName.substring(1).toLowerCase()
+    //-         if formdata.FacSSN && (formdata.FacSSN == row.FacSSN)
+    //-           option(value=row.FacSSN, selected) #{firstname} #{lastname}
+    //-         else 
+    //-           option(value=row.FacSSN) #{firstname} #{lastname}
 
-        if facdetails
-          table 
-            caption 
-              h3 Details for&nbsp;
-                span(class='name') #{facdetails.FacFirstName.toLowerCase()} #{facdetails.FacLastName.toLowerCase()}
-            thead 
-              tr 
-                each key in Object.keys(facdetails)
-                  th(scope="column",class="facdetails")= key
-            tbody 
-              tr 
-                each key in Object.keys(facdetails)
-                  td(class="facdetails") #{facdetails[key]}
+    //-     if facdetails
+    //-       table 
+    //-         caption 
+    //-           h3 Details for&nbsp;
+    //-             span(class='name') #{facdetails.FacFirstName.toLowerCase()} #{facdetails.FacLastName.toLowerCase()}
+    //-         thead 
+    //-           tr 
+    //-             each key in Object.keys(facdetails)
+    //-               th(scope="column",class="facdetails")= key
+    //-         tbody 
+    //-           tr 
+    //-             each key in Object.keys(facdetails)
+    //-               td(class="facdetails") #{facdetails[key]}
 
     fieldset
       legend Cubes
@@ -119,32 +119,96 @@ block content
     - let departments = ['FIN','MS'];
     - let ranks = ['ASST', 'ASSC', 'PROF'];
     table
-      caption Faculty 
+      caption
+        h2 Faculty 
       thead
         tr
           each key in Object.keys(faculty[0])
             th(scope='column', class='facdetails') #{key}
+          th(scope='column', class='facdetails') Delete?
       tbody 
         each row in faculty
           tr
-            each key in Object.keys(row)
-              td(class="facdetails") #{row[key]}
+            form(action="/", method="get")
+              input(type="hidden",name="action",value=`faculty_update_${row.FacSSN}`)
+              each key in Object.keys(formdata)
+                if key != 'action' && key != 'FacDelete' && (!(key in row))
+                  input(type="hidden",name=`${key}`, value=`${formdata[key]}`)
+
+              td(class="facdetails") #{row.FacSSN}
+                input(type="hidden",name="FacSSN", value=row.FacSSN) 
+              td(class="facdetails") #{row.FacFirstName}
+                input(type="hidden",name="FacFirstName", value=row.FacFirstName)
+              td(class="facdetails") #{row.FacLastName}
+                input(type="hidden",name="FacLastName", value=row.FacLastName)
+              td(class="facdetails")
+                input(type="text",name="FacCity", value=row.FacCity,style="width: 8em; text-align: center",required)
+                span(class='flag')
+              td(class="facdetails")
+                input(type="text",name="FacState", value=row.FacState, style="width: 1.6em", pattern='[A-Z]{2}',required)
+                span(class='flag')
+              td(class="facdetails")
+                select(name='FacDept',required)
+                  each dept in departments
+                    if dept == row.FacDept
+                      option(selected) #{dept}
+                    else 
+                      option #{dept}
+              td(class="facdetails")
+                select(name='FacRank',required)
+                  each rank in ranks
+                    if rank == row.FacRank
+                      option(selected) #{rank}
+                    else 
+                      option #{rank}
+              td(class="facdetails")
+                input(name="FacSalary",type="number",min="0",step="1000",value=row.FacSalary,style="width: 4.8em; text-align: right",required)
+                span(class='flag')
+              td(class="facdetails")
+                select(name='FacSupervisor')
+                  option(value='') 
+                  each row2 in faculty
+                    - let firstname = row2.FacFirstName[0] + row2.FacFirstName.substring(1).toLowerCase()
+                    - let lastname = row2.FacLastName[0] + row2.FacLastName.substring(1).toLowerCase()
+                    if row2.FacSSN == row.FacSupervisor
+                      option(value=row2.FacSSN,selected) #{firstname} #{lastname}
+                    else 
+                      option(value=row2.FacSSN) #{firstname} #{lastname}
+              td(class="facdetails") #{row.FacHireDate}
+                input(type="hidden",name="FacHireDate", value=row.FacHireDate) 
+              td(class="facdetails")
+                input(type="text",name="FacZipCode", value=row.FacZipCode, pattern="\\d{9}",  style="width: 5em",required)
+                span(class='flag')
+              td(class='facdetails')
+                input(type='checkbox',name="FacDelete")
+              td(class="facdetails")
+                input(type="submit",value="Update")
+
+
+            //- each key in Object.keys(row)
+            //-   td(class="facdetails") #{row[key]}
         tr
           form#faculty_insert(action="/", method="get")
             input(type="hidden",name="action",value='faculty_insert')
             //- Include the old formdata, so the main form redisplays correctly
             each key in Object.keys(formdata)
-              input(type="hidden",name=`${key}`, value=`${formdata[key]}`)
+              if key != "action" && key != 'FacDelete' && (!(key in faculty[0]))
+                input(type="hidden",name=`${key}`, value=`${formdata[key]}`)
             td(class="facdetails")
-              input(name="FacSSN",type="text",pattern="\d{9}",style="width: 5em",required)
+              input(name="FacSSN",type="text",pattern="\\d{9}",style="width: 5em",required)
+              span(class='flag')
             td(class="facdetails")
-              input(name="FacFirstName",type="text",required,style="width: 8em")
+              input(name="FacFirstName",type="text",style="width: 8em",required)
+              span(class='flag')
             td(class="facdetails")
-              input(name="FacLastName",type="text",required,style="width: 8em")
+              input(name="FacLastName",type="text",style="width: 8em",required)
+              span(class='flag')
             td(class="facdetails")
-              input(name="FacCity",type="text",required,style="width: 8em")
+              input(name="FacCity",type="text",style="width: 8em",required)
+              span(class='flag')
             td(class="facdetails")
-              input(name="FacState",type="text",required,style="width: 1.5em", pattern='[A-Z]{2}')
+              input(name="FacState",type="text",style="width: 1.6em", pattern='[A-Z]{2}',required)
+              span(class='flag')
             td(class="facdetails")
               select(name='FacDept',required)
                 each dept in departments
@@ -153,4 +217,24 @@ block content
               select(name='FacRank',required)
                 each rank in ranks
                   option #{rank}
+            td(class="facdetails")
+              input(name="FacSalary",type="number",min="0",step="1000",value="0",style="width: 4.8em; text-align: right",required)
+              span(class='flag')
+            td(class="facdetails")
+              select(name='FacSupervisor')
+                option(value='') 
+                each row in faculty
+                  - let firstname = row.FacFirstName[0] + row.FacFirstName.substring(1).toLowerCase()
+                  - let lastname = row.FacLastName[0] + row.FacLastName.substring(1).toLowerCase()
+                  option(value=row.FacSSN) #{firstname} #{lastname}
+            td(class='facdetails')
+              input(name='FacHireDate',type="date",style="width: 8em",required)
+              span(class='flag')
+            td(class="facdetails")
+              input(name="FacZipCode",type="text",pattern="\\d{9}",style="width: 5em",required)
+              span(class='flag')
+            td(class='facdetails') &nbsp;
+            td(class='facdetails')
+              input(type="submit",value="Insert")
+
             
