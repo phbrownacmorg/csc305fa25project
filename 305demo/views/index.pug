@@ -62,36 +62,6 @@ block content
                   else
                     td(class="offerings") #{course[key]}
 
-    //- if formdata.HR_page && facpeople
-    //-   fieldset 
-    //-     legend Faculty details
-    //-     label Faculty to&nbsp;
-    //-       span(style='text-decoration: line-through') snoop on
-    //-       | &nbsp;inquire about:&nbsp;
-    //-     select(id='FacSSN', name='FacSSN')
-    //-       option(value='') &mdash; Please select a faculty member &mdash;
-    //-       each row in facpeople
-    //-         - let firstname = row.FacFirstName[0] + row.FacFirstName.substring(1).toLowerCase()
-    //-         - let lastname = row.FacLastName[0] + row.FacLastName.substring(1).toLowerCase()
-    //-         if formdata.FacSSN && (formdata.FacSSN == row.FacSSN)
-    //-           option(value=row.FacSSN, selected) #{firstname} #{lastname}
-    //-         else 
-    //-           option(value=row.FacSSN) #{firstname} #{lastname}
-
-    //-     if facdetails
-    //-       table 
-    //-         caption 
-    //-           h3 Details for&nbsp;
-    //-             span(class='name') #{facdetails.FacFirstName.toLowerCase()} #{facdetails.FacLastName.toLowerCase()}
-    //-         thead 
-    //-           tr 
-    //-             each key in Object.keys(facdetails)
-    //-               th(scope="column",class="facdetails")= key
-    //-         tbody 
-    //-           tr 
-    //-             each key in Object.keys(facdetails)
-    //-               td(class="facdetails") #{facdetails[key]}
-
     fieldset
       legend Cubes
       label Show table of cubes up to
@@ -183,10 +153,6 @@ block content
                 input(type='checkbox',name="FacDelete")
               td(class="facdetails")
                 input(type="submit",value="Update")
-
-
-            //- each key in Object.keys(row)
-            //-   td(class="facdetails") #{row[key]}
         tr
           form#faculty_insert(action="/", method="get")
             input(type="hidden",name="action",value='faculty_insert')

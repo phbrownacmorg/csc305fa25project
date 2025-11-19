@@ -26,7 +26,50 @@ function setTitle(req, res, next) {
   else {
     req.app.locals.title = '305demo';
   }
-  getFaculty(req, res, next);
+  changeFaculty(req, res, next);
+}
+
+function changeFaculty(req, res, next) {
+  console.log(`changeFaculty: ${req.body.action}`);
+  if (req.body.action) {
+    let sql = '';
+    fields = ['FacFirstName', 'FacLastName', 'FacCity', 'FacState',
+              'FacDept', 'FacRank', 'FacSalary', 'FacHireDate', 'FacZipCode'];
+    if (req.body.action == 'faculty_insert') {
+      sql = 'INSERT INTO FACULTY(FacSSN';
+      for (field of fields) {
+        sql += `,${field}`;
+      }
+      if (req.body.FacSupervisor) {
+        sql += ',FacSupervisor'
+      }
+      sql += `) VALUES ('${req.body.FacSSN}'`;
+      for (field of fields) {
+        sql += `,'${req.body[field]}'`;
+      }
+      if (req.body.FacSupervisor) {
+        sql += `,'${req.body.FacSupervisor}'`;
+      }
+      sql += ');';
+    }
+    else if (req.body.action.startsWith('faculty_update_')) {
+      if (req.body.FacDelete) {
+        sql = `DELETE FROM Faculty WHERE FacSSN=${req.body.FacSSN};`;
+      }
+      else {
+        sql = `Update in Faculty SET FacCity = '${req.body.FacCity}'`;
+        update_fields = fields.slice(4,7).concat(['FacSupervisor','FacZipCode']); //.concat(fields.slice(-1)).push('FacSupervisor');
+        for (field of update_fields) {
+          sql += `,${field} = '${req.body[field]}'`;
+        }
+      }
+    }
+    console.log(sql);
+    getFaculty(req, res, next);
+  }
+  else {
+    getFaculty(req, res, next);
+  }
 }
 
 /**
@@ -85,45 +128,6 @@ function listTermCourses(req, res, next) {
     renderPage(req, res, next);
   }
 }
-
-
-// /*
-//  * Unconditionally set req.app.locals.facpeople to the FacSSN, FacFirstName, and
-//  * FacLastName of everyone in the Faculty table.  Call inquireFaculty.
-//  */
-// function listFaculty(req, res, next) {  
-//   let sql = 'SELECT FacSSN, FacFirstName, FacLastName from Faculty;'
-//   req.app.locals.db.all(sql, [], (err, rows) => {
-//     if (err) {
-//       throw err;
-//     }
-//     req.app.locals.facpeople = rows;
-//     req.app.locals.title = 
-//     inquireFaculty(req, res, next);
-//   })
-// }
-
-// /*
-//  * Set req.app.locals.facDetails to all the details about a given faculty member.  Call renderPage.
-//  */
-// function inquireFaculty(req, res, next) {
-//   if (req.body.FacSSN) {
-//     sql = 'select FacSSN, FacFirstName, FacLastName, FacCity, FacState, FacZipCode, FacDept, FacRank, FacSalary, FacSupervisor, FacHireDate';
-//     sql += ' from Faculty where FacSSN=?;';
-//     req.app.locals.db.get(sql, [req.body.FacSSN], (err, row) => {
-//       if (err) {
-//         throw err;
-//       }
-//       req.app.locals.facDetails = row;
-//       renderPage(req, res, next);
-//     });
-//   }
-//   else {
-//     req.app.locals.facDetails = undefined;
-//     renderPage(req, res, next);
-//   }
-// }
-
 
 /*
  * Marshal all the data that has been stashed in req.app.locals, and call res.render on index.
