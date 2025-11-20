@@ -29,10 +29,14 @@ function setTitle(req, res, next) {
   changeFaculty(req, res, next);
 }
 
+/*
+ * If there is a query to run to change the Faculty table, run it.
+ * In any case, run getFaculty next.
+ */
 function changeFaculty(req, res, next) {
   console.log(`changeFaculty: ${req.body.action}`);
   if (req.body.action) {
-    let sql = '';
+    let sql = 'SELECT 3+2;';  // Do something harmless if sql doesn't get set properly
     fields = ['FacFirstName', 'FacLastName', 'FacCity', 'FacState',
               'FacDept', 'FacRank', 'FacSalary', 'FacHireDate', 'FacZipCode'];
     if (req.body.action == 'faculty_insert') {
@@ -54,18 +58,30 @@ function changeFaculty(req, res, next) {
     }
     else if (req.body.action.startsWith('faculty_update_')) {
       if (req.body.FacDelete) {
-        sql = `DELETE FROM Faculty WHERE FacSSN=${req.body.FacSSN};`;
+        sql = `DELETE FROM Faculty WHERE FacSSN='${req.body.FacSSN}';`;
       }
       else {
-        sql = `Update in Faculty SET FacCity = '${req.body.FacCity}'`;
-        update_fields = fields.slice(4,7).concat(['FacSupervisor','FacZipCode']); //.concat(fields.slice(-1)).push('FacSupervisor');
+        sql = `Update Faculty SET FacCity = '${req.body.FacCity}'`;
+        update_fields = fields.slice(3,7).concat(['FacSupervisor','FacZipCode']);
         for (field of update_fields) {
           sql += `,${field} = '${req.body[field]}'`;
         }
+        sql += ` WHERE FacSSN='${req.body.FacSSN}';`;
       }
     }
     console.log(sql);
-    getFaculty(req, res, next);
+
+    // Callback function defined in the old style so that this.changes gets the
+    //     number of rows affected.
+    function sqlCallback(err) {
+      if (err) {
+        throw err;
+      }
+      console.log(`${this.changes} rows affected.`)
+      getFaculty(req, res, next);
+    }
+
+    req.app.locals.db.run(sql, [], sqlCallback);
   }
   else {
     getFaculty(req, res, next);

@@ -61,9 +61,7 @@ fieldset {
 
 /* ------------------- Indicate required items ------------------------------------------------ */
 
-span.flag {
-  display: none;
-}
+
 span.flag::before {
     color: firebrick;
     content: '*';
